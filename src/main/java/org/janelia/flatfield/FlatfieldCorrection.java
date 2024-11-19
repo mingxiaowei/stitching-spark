@@ -103,6 +103,25 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 			return null;
 		}
 
+		return loadCorrectionImages(dataProvider, basePath, dimensionality, scalingTermPath, translationTermPath);
+	}
+
+	public static < U extends NativeType< U > & RealType< U > > RandomAccessiblePairNullable< U, U > loadCorrectionImages(
+			final DataProvider dataProvider,
+			final String basePath,
+			final int dimensionality,
+			final String scalingTermPath,
+			final String translationTermPath ) throws IOException
+	{
+		if ( scalingTermPath == null || translationTermPath == null )
+			return loadCorrectionImages( dataProvider, basePath, dimensionality );
+
+		if ( !dataProvider.exists( scalingTermPath ) || !dataProvider.exists( translationTermPath ) )
+		{
+			System.out.println( "Provided flatfield/darkfield file does not exist; use default instead. " );
+			return loadCorrectionImages( dataProvider, basePath, dimensionality );
+		}
+
 		final ImagePlus scalingTermImp = dataProvider.loadImage( scalingTermPath );
 		final ImagePlus translationTermImp = dataProvider.loadImage( translationTermPath );
 
