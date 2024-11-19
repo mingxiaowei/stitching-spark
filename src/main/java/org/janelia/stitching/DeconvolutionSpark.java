@@ -266,7 +266,13 @@ public class DeconvolutionSpark
 			// initialize flatfields for each channel
 			final List< RandomAccessiblePairNullable< U, U > > channelFlatfields = new ArrayList<>();
 			for ( final String channelPath : parsedArgs.inputChannelsPaths )
-				channelFlatfields.add( FlatfieldCorrection.loadCorrectionImages( dataProvider, channelPath, inputTileChannels.get( 0 )[ 0 ].numDimensions() ) );
+				channelFlatfields.add( 
+					FlatfieldCorrection.loadCorrectionImages( 
+						dataProvider, 
+						channelPath, 
+						inputTileChannels.get( 0 )[ 0 ].numDimensions(), 
+						parsedArgs.flatfieldFile, 
+						parsedArgs.darkfieldFile ) );
 			final Broadcast< List< RandomAccessiblePairNullable< U, U > > > broadcastedChannelFlatfields = sparkContext.broadcast( channelFlatfields );
 
 			sparkContext.parallelize( channelIndicesAndTileBlocks, Math.min( channelIndicesAndTileBlocks.size(), MAX_PARTITIONS ) ).foreach( tileBlockAndChannelIndex ->

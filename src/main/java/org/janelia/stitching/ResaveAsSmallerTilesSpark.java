@@ -156,7 +156,12 @@ public class ResaveAsSmallerTilesSpark implements Serializable, AutoCloseable
 
 		final Broadcast< List< Interval > > broadcastedNewTilesIntervalsInSingleTile = sparkContext.broadcast( newTilesIntervalsInSingleTile );
 
-		final RandomAccessiblePairNullable< U, U > flatfield = FlatfieldCorrection.loadCorrectionImages( sourceDataProvider, inputTileConfiguration, tiles[ 0 ].numDimensions() );
+		final RandomAccessiblePairNullable< U, U > flatfield = FlatfieldCorrection.loadCorrectionImages( 
+			sourceDataProvider, 
+			inputTileConfiguration, 
+			tiles[ 0 ].numDimensions(),
+			args.flatfieldFile,
+			args.darkfieldFile );
 		final Broadcast< RandomAccessiblePairNullable< U, U > > broadcastedFlatfield = sparkContext.broadcast( flatfield );
 
 		final List< TileInfo > newTiles = sparkContext.parallelize( Arrays.asList( tiles ), tiles.length ).flatMap(
