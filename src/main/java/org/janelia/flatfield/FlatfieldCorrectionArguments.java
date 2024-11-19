@@ -57,6 +57,14 @@ public class FlatfieldCorrectionArguments
 			usage = "Quantile to determine max histogram value")
 	private Double histMaxQuantile;
 
+	@Option(name = "--flatfield-file", aliases = { "-fff" }, required = false,
+			usage = "Provided flatfield file")
+	private String flatfieldFile = null;
+
+	@Option(name = "--darkfield-file", aliases = { "-dff" }, required = false,
+			usage = "Provided darkfield file")
+	private String darkfieldFile = null;
+
 	private static final double defaultHistMinQuantile = 0.05;
 	private static final double defaultHistMaxQuantile = 0.95;
 
