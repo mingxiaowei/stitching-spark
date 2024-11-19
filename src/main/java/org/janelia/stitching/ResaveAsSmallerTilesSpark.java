@@ -66,6 +66,14 @@ public class ResaveAsSmallerTilesSpark implements Serializable, AutoCloseable
 				usage = "Overlap on each side as a ratio relative to the new tile size. This is only an initial guess, where the actual overlap is determined based on the size of the volume such that all tiles have the same size.")
 		public double minOverlapRatioEachSide = 0.1;
 
+		@Option(name = "--flatfield-file", aliases = { "-fff" }, required = false,
+				usage = "Provided flatfield file")
+		private String flatfieldFile = null;
+
+		@Option(name = "--darkfield-file", aliases = { "-dff" }, required = false,
+				usage = "Provided darkfield file")
+		private String darkfieldFile = null;
+
 		public boolean parsedSuccessfully = false;
 
 		public ResaveAsSmallerTilesCmdArgs( final String[] args ) throws IllegalArgumentException
