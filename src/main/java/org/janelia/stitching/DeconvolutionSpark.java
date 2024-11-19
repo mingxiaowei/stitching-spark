@@ -90,6 +90,14 @@ public class DeconvolutionSpark
 				usage = "If specified, the output images are saved as 32-bit float images. If omitted, they are converted into the value range of the input datatype (default).")
 		private boolean exportAsFloat = false;
 
+		@Option(name = "--flatfield-file", aliases = { "-fff" }, required = false,
+				usage = "Provided flatfield file")
+		private String flatfieldFile = null;
+
+		@Option(name = "--darkfield-file", aliases = { "-dff" }, required = false,
+				usage = "Provided darkfield file")
+		private String darkfieldFile = null;
+
 		private boolean parsedSuccessfully = false;
 
 		public DeconvolutionCmdArgs( final String... args ) throws IllegalArgumentException
