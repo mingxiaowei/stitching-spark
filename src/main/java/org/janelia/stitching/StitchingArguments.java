@@ -102,6 +102,14 @@ public class StitchingArguments implements Serializable {
 			usage = "Fill the outer space in N5 export with the background value of the data instead of zero")
 	private boolean fillBackground = false;
 
+	@Option(name = "--flatfield-file", aliases = { "-fff" }, required = false,
+			usage = "Provided flatfield file")
+	private String flatfieldFile = null;
+
+	@Option(name = "--darkfield-file", aliases = { "-dff" }, required = false,
+			usage = "Provided darkfield file")
+	private String darkfieldFile = null;
+
 	/**
 	 * Toggle pipeline stages. By default all stages are executed.
 	 */
