@@ -118,6 +118,9 @@ public class FlatfieldCorrectionArguments
 	public boolean use2D() { return use2D; }
 	public Pair< Double, Double > getMinMaxQuantiles() { return new ValuePair<>( histMinQuantile, histMaxQuantile ); }
 
+	public String flatfieldFile() { return flatfieldFile; }
+	public String darkfieldFile() { return darkfieldFile; }
+
 	public HistogramSettings getHistogramSettings()
 	{
 		return new HistogramSettings(

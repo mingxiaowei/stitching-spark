@@ -249,6 +249,9 @@ public class StitchingArguments implements Serializable {
 
 	public RematchingMode rematchingMode() { return rematchingMode; }
 
+	public String flatfieldFile() { return flatfieldFile; }
+	public String darkfieldFile() { return darkfieldFile; }
+
 	private long[] parseArray( final String str )
 	{
 		if ( str == null )
