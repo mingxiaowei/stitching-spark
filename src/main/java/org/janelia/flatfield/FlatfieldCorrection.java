@@ -30,8 +30,6 @@ import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.converter.Converters;
-import net.imglib2.converter.RealConverter;
 import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.basictypeaccess.array.DoubleArray;
 import net.imglib2.img.display.imagej.ImageJFunctions;
@@ -133,15 +131,11 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 			final String flatfieldPath,
 			final String darkfieldPath ) throws IOException
 	{
-		final RandomAccessiblePairNullable< U, U > originalST = loadCorrectionImages( dataProvider, basePath, dimensionality );
-		final RandomAccessible< U > originalS = originalST.getA();
-		final RandomAccessible< U > originalT = originalST.getB();
-		final RandomAccessiblePairNullable< U, U >.RandomAccess originalSTRandomAccess = originalST.randomAccess();
 		
 		if ( !dataProvider.exists( flatfieldPath ) || !dataProvider.exists( darkfieldPath ) )
 		{
 			System.out.println( "Provided flatfield/darkfield file does not exist; use default instead. " );
-			return originalST;
+			return loadCorrectionImages(dataProvider, basePath, dimensionality);
 		}
 
 		final ImagePlus flatfieldImp = dataProvider.loadImage( flatfieldPath );
@@ -158,12 +152,63 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 		final RandomAccessible< U > flatfieldImgExtended = ( flatfieldImg.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( flatfieldImg ) ) : flatfieldImg );
 		final RandomAccessible< U > darkfieldImgExtended = ( darkfieldImg.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( darkfieldImg ) ) : darkfieldImg );
 
-		final U newS = originalSTRandomAccess.getA().createVariable();
-		newS.setReal(originalSTRandomAccess.getA().getRealDouble() / flatfieldImgExtended.randomAccess().get().getRealDouble());
-		final U newT = originalSTRandomAccess.getB().createVariable();
-		newT.setReal((originalSTRandomAccess.getB().getRealDouble() - darkfieldImgExtended.randomAccess().get().getRealDouble()) / flatfieldImgExtended.randomAccess().get().getRealDouble());
+		final RandomAccessiblePairNullable< U, U > newFlatfieldPair = new RandomAccessiblePairNullable<>( flatfieldImgExtended, darkfieldImgExtended );
 
-		return new RandomAccessiblePairNullable<>( newS, newT );
+		final String flatfieldFolderPath = getFlatfieldFolderForBasePath( basePath );
+
+		final String scalingTermPath = PathResolver.get( flatfieldFolderPath, scalingTermFilename );
+		final String translationTermPath = PathResolver.get( flatfieldFolderPath, translationTermFilename );
+
+		System.out.println( "Loading flat-field components:" );
+		System.out.println( "  " + scalingTermPath );
+		System.out.println( "  " + translationTermPath );
+
+		if ( !dataProvider.exists( scalingTermPath ) || !dataProvider.exists( translationTermPath ) )
+		{
+			System.out.println( "  -- Flat-field images do not exist" );
+			return null;
+		}
+
+		System.out.println( "Loading flat-field components:" );
+		System.out.println( "  " + scalingTermPath );
+		System.out.println( "  " + translationTermPath );
+
+		final ImagePlus scalingTermImp = dataProvider.loadImage( scalingTermPath );
+		final ImagePlus translationTermImp = dataProvider.loadImage( translationTermPath );
+
+		final RandomAccessibleInterval< U > scalingTermWrappedImg = ImagePlusImgs.from( scalingTermImp );
+		final RandomAccessibleInterval< U > translationTermWrappedImg = ImagePlusImgs.from( translationTermImp );
+		
+		final ImagePlusImg< FloatType, ? > newSImg = ImagePlusImgs.floats( Intervals.dimensionsAsLongArray(scalingTermWrappedImg) );
+		final ImagePlusImg< FloatType, ? > newTImg = ImagePlusImgs.floats( Intervals.dimensionsAsLongArray(translationTermWrappedImg) );
+		final Cursor< U > SCursor = Views.flatIterable( scalingTermWrappedImg ).localizingCursor();
+		final Cursor< U > TCursor = Views.flatIterable( translationTermWrappedImg ).localizingCursor();
+		final Cursor< FloatType > newSCursor = Views.flatIterable( newSImg ).localizingCursor();	
+		final Cursor< FloatType > newTCursor = Views.flatIterable( newTImg ).localizingCursor();
+		final RandomAccessiblePairNullable< U, U >.RandomAccess newFlatfieldRandomAccess = newFlatfieldPair.randomAccess();
+		while ( SCursor.hasNext() || newSCursor.hasNext() )
+		{
+			SCursor.fwd();
+			newFlatfieldRandomAccess.setPosition( SCursor );
+			newSCursor.next().setReal( SCursor.get().getRealDouble() / newFlatfieldRandomAccess.getA().getRealDouble() );
+		}
+		while ( TCursor.hasNext() || newTCursor.hasNext() )
+		{
+			TCursor.fwd();
+			newFlatfieldRandomAccess.setPosition( TCursor );
+			newTCursor.next().setReal( (TCursor.get().getRealDouble() - newFlatfieldRandomAccess.getB().getRealDouble()) / newFlatfieldRandomAccess.getA().getRealDouble() );
+		}
+
+		final RandomAccessibleInterval< U > newSWrapped = ImagePlusImgs.from( newSImg.getImagePlus() );
+		final RandomAccessibleInterval< U > newTWrapped = ImagePlusImgs.from( newTImg.getImagePlus() );
+
+		final RandomAccessibleInterval< U > newS = copyImage( newSWrapped );
+		final RandomAccessibleInterval< U > newT = copyImage( newTWrapped );
+		
+		final RandomAccessible< U > newSExtended = ( newS.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( newS ) ) : newS );
+		final RandomAccessible< U > newTExtended = ( newT.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( newT ) ) : newT );
+
+		return new RandomAccessiblePairNullable<>( newSExtended, newTExtended );
 	}
 
 	private static < U extends NativeType< U > & RealType< U > > RandomAccessibleInterval< U > copyImage( final RandomAccessibleInterval< U > img )
