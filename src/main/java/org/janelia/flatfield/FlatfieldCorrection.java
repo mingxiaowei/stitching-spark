@@ -196,7 +196,7 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 		{
 			TCursor.fwd();
 			newFlatfieldRandomAccess.setPosition( TCursor );
-			newTCursor.next().setReal( (TCursor.get().getRealDouble() - newFlatfieldRandomAccess.getB().getRealDouble()) / newFlatfieldRandomAccess.getA().getRealDouble() );
+			newTCursor.next().setReal( ( TCursor.get().getRealDouble() - newFlatfieldRandomAccess.getB().getRealDouble() ) / newFlatfieldRandomAccess.getA().getRealDouble() );
 		}
 
 		final RandomAccessibleInterval< U > newSWrapped = ImagePlusImgs.from( newSImg.getImagePlus() );
