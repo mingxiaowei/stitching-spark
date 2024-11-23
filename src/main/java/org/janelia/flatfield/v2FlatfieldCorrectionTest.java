@@ -6,6 +6,7 @@ import org.janelia.stitching.StitchingArguments;
 import org.janelia.stitching.TileInfo;
 import org.janelia.stitching.TileLoader;
 import org.janelia.stitching.Utils;
+import org.scijava.java3d.utils.scenegraph.io.state.org.scijava.java3d.SoundState;
 import org.janelia.dataaccess.DataProvider;
 import org.janelia.dataaccess.DataProviderFactory;
 import org.janelia.dataaccess.PathResolver;
@@ -59,8 +60,12 @@ public class v2FlatfieldCorrectionTest
         String outputDirectory = "/Users/mingxiaowei/Desktop/smslab/code/stitching-spark/test_results/test1";
 
         int processed = 0;
-		for ( final TileInfo tile : tiles )
+		// for ( final TileInfo tile : tiles )
+        System.out.println(String.format("total number of tiles = %d", tiles.length));
+        for (int i = 0; i < tiles.length; i++)
 		{
+            System.out.println(String.format("Processing tile %d", i));
+            TileInfo tile = tiles[i];
 			final RandomAccessibleInterval< T > tileImg = TileLoader.loadTile( tile, dataProvider );
 			final FlatfieldCorrectedRandomAccessible< T, U > flatfieldCorrectedTileImg = new FlatfieldCorrectedRandomAccessible<>( tileImg, flatfield.toRandomAccessiblePair() );
 			final RandomAccessibleInterval< U > correctedImg = Views.interval( flatfieldCorrectedTileImg, tileImg );
