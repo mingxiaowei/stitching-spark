@@ -154,61 +154,63 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 
 		final RandomAccessiblePairNullable< U, U > newFlatfieldPair = new RandomAccessiblePairNullable<>( flatfieldImgExtended, darkfieldImgExtended );
 
-		final String flatfieldFolderPath = getFlatfieldFolderForBasePath( basePath );
+		return newFlatfieldPair;
 
-		final String scalingTermPath = PathResolver.get( flatfieldFolderPath, scalingTermFilename );
-		final String translationTermPath = PathResolver.get( flatfieldFolderPath, translationTermFilename );
+		// final String flatfieldFolderPath = getFlatfieldFolderForBasePath( basePath );
 
-		System.out.println( "Loading flat-field components:" );
-		System.out.println( "  " + scalingTermPath );
-		System.out.println( "  " + translationTermPath );
+		// final String scalingTermPath = PathResolver.get( flatfieldFolderPath, scalingTermFilename );
+		// final String translationTermPath = PathResolver.get( flatfieldFolderPath, translationTermFilename );
 
-		if ( !dataProvider.exists( scalingTermPath ) || !dataProvider.exists( translationTermPath ) )
-		{
-			System.out.println( "  -- Flat-field images do not exist" );
-			return null;
-		}
+		// System.out.println( "Loading flat-field components:" );
+		// System.out.println( "  " + scalingTermPath );
+		// System.out.println( "  " + translationTermPath );
 
-		System.out.println( "Loading flat-field components:" );
-		System.out.println( "  " + scalingTermPath );
-		System.out.println( "  " + translationTermPath );
+		// if ( !dataProvider.exists( scalingTermPath ) || !dataProvider.exists( translationTermPath ) )
+		// {
+		// 	System.out.println( "  -- Flat-field images do not exist" );
+		// 	return null;
+		// }
 
-		final ImagePlus scalingTermImp = dataProvider.loadImage( scalingTermPath );
-		final ImagePlus translationTermImp = dataProvider.loadImage( translationTermPath );
+		// System.out.println( "Loading flat-field components:" );
+		// System.out.println( "  " + scalingTermPath );
+		// System.out.println( "  " + translationTermPath );
 
-		final RandomAccessibleInterval< U > scalingTermWrappedImg = ImagePlusImgs.from( scalingTermImp );
-		final RandomAccessibleInterval< U > translationTermWrappedImg = ImagePlusImgs.from( translationTermImp );
+		// final ImagePlus scalingTermImp = dataProvider.loadImage( scalingTermPath );
+		// final ImagePlus translationTermImp = dataProvider.loadImage( translationTermPath );
+
+		// final RandomAccessibleInterval< U > scalingTermWrappedImg = ImagePlusImgs.from( scalingTermImp );
+		// final RandomAccessibleInterval< U > translationTermWrappedImg = ImagePlusImgs.from( translationTermImp );
 		
-		final ImagePlusImg< FloatType, ? > newSImg = ImagePlusImgs.floats( Intervals.dimensionsAsLongArray(scalingTermWrappedImg) );
-		final ImagePlusImg< FloatType, ? > newTImg = ImagePlusImgs.floats( Intervals.dimensionsAsLongArray(translationTermWrappedImg) );
-		final Cursor< U > SCursor = Views.flatIterable( scalingTermWrappedImg ).localizingCursor();
-		final Cursor< U > TCursor = Views.flatIterable( translationTermWrappedImg ).localizingCursor();
-		final Cursor< FloatType > newSCursor = Views.flatIterable( newSImg ).localizingCursor();	
-		final Cursor< FloatType > newTCursor = Views.flatIterable( newTImg ).localizingCursor();
-		final RandomAccessiblePairNullable< U, U >.RandomAccess newFlatfieldRandomAccess = newFlatfieldPair.randomAccess();
-		while ( SCursor.hasNext() || newSCursor.hasNext() )
-		{
-			SCursor.fwd();
-			newFlatfieldRandomAccess.setPosition( SCursor );
-			newSCursor.next().setReal( SCursor.get().getRealDouble() / newFlatfieldRandomAccess.getA().getRealDouble() );
-		}
-		while ( TCursor.hasNext() || newTCursor.hasNext() )
-		{
-			TCursor.fwd();
-			newFlatfieldRandomAccess.setPosition( TCursor );
-			newTCursor.next().setReal( ( TCursor.get().getRealDouble() - newFlatfieldRandomAccess.getB().getRealDouble() ) / newFlatfieldRandomAccess.getA().getRealDouble() );
-		}
+		// final ImagePlusImg< FloatType, ? > newSImg = ImagePlusImgs.floats( Intervals.dimensionsAsLongArray(scalingTermWrappedImg) );
+		// final ImagePlusImg< FloatType, ? > newTImg = ImagePlusImgs.floats( Intervals.dimensionsAsLongArray(translationTermWrappedImg) );
+		// final Cursor< U > SCursor = Views.flatIterable( scalingTermWrappedImg ).localizingCursor();
+		// final Cursor< U > TCursor = Views.flatIterable( translationTermWrappedImg ).localizingCursor();
+		// final Cursor< FloatType > newSCursor = Views.flatIterable( newSImg ).localizingCursor();	
+		// final Cursor< FloatType > newTCursor = Views.flatIterable( newTImg ).localizingCursor();
+		// final RandomAccessiblePairNullable< U, U >.RandomAccess newFlatfieldRandomAccess = newFlatfieldPair.randomAccess();
+		// while ( SCursor.hasNext() || newSCursor.hasNext() )
+		// {
+		// 	SCursor.fwd();
+		// 	newFlatfieldRandomAccess.setPosition( SCursor );
+		// 	newSCursor.next().setReal( SCursor.get().getRealDouble() / newFlatfieldRandomAccess.getA().getRealDouble() );
+		// }
+		// while ( TCursor.hasNext() || newTCursor.hasNext() )
+		// {
+		// 	TCursor.fwd();
+		// 	newFlatfieldRandomAccess.setPosition( TCursor );
+		// 	newTCursor.next().setReal( ( TCursor.get().getRealDouble() - newFlatfieldRandomAccess.getB().getRealDouble() ) / newFlatfieldRandomAccess.getA().getRealDouble() );
+		// }
 
-		final RandomAccessibleInterval< U > newSWrapped = ImagePlusImgs.from( newSImg.getImagePlus() );
-		final RandomAccessibleInterval< U > newTWrapped = ImagePlusImgs.from( newTImg.getImagePlus() );
+		// final RandomAccessibleInterval< U > newSWrapped = ImagePlusImgs.from( newSImg.getImagePlus() );
+		// final RandomAccessibleInterval< U > newTWrapped = ImagePlusImgs.from( newTImg.getImagePlus() );
 
-		final RandomAccessibleInterval< U > newS = copyImage( newSWrapped );
-		final RandomAccessibleInterval< U > newT = copyImage( newTWrapped );
+		// final RandomAccessibleInterval< U > newS = copyImage( newSWrapped );
+		// final RandomAccessibleInterval< U > newT = copyImage( newTWrapped );
 		
-		final RandomAccessible< U > newSExtended = ( newS.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( newS ) ) : newS );
-		final RandomAccessible< U > newTExtended = ( newT.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( newT ) ) : newT );
+		// final RandomAccessible< U > newSExtended = ( newS.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( newS ) ) : newS );
+		// final RandomAccessible< U > newTExtended = ( newT.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( newT ) ) : newT );
 
-		return new RandomAccessiblePairNullable<>( newSExtended, newTExtended );
+		// return new RandomAccessiblePairNullable<>( newSExtended, newTExtended );
 	}
 
 	private static < U extends NativeType< U > & RealType< U > > RandomAccessibleInterval< U > copyImage( final RandomAccessibleInterval< U > img )

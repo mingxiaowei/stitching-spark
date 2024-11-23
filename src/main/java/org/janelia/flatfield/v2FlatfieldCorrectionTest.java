@@ -46,17 +46,17 @@ public class v2FlatfieldCorrectionTest
         int dimensionality = 3;
         // String SPath_old = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching_beforeflatfield/c2-flatfield/S.tif";
         // String TPath_old = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching_beforeflatfield/c2-flatfield/T.tif";
-        String SPath = "/Volumes/data/sternsonlab/Mingxiao/df_s0.tiff";
-        String TPath = "/Volumes/data/sternsonlab/Mingxiao/ff_s0.tiff";
+        String SPath = "/Volumes/data/sternsonlab/Mingxiao/S_test.tiff";
+        String TPath = "/Volumes/data/sternsonlab/Mingxiao/T_test.tiff";
 
         final TileInfo[] tiles = dataProvider.loadTiles( inputTileConfiguration );
         RandomAccessiblePairNullable< U, U >  flatfield = FlatfieldCorrection.loadCorrectionImages(
-            dataProvider, sargs.flatfieldFile(), dimensionality, SPath, TPath);
+            dataProvider, inputTileConfiguration, dimensionality, SPath, TPath);
         
         if ( flatfield == null )
 			throw new NullPointerException( "flatfield images were not found" );
         
-        String outputDirectory = "/Users/mingxiaowei/Desktop/smslab/code/stitching-spark/test_results";
+        String outputDirectory = "/Users/mingxiaowei/Desktop/smslab/code/stitching-spark/test_results/test1";
 
         int processed = 0;
 		for ( final TileInfo tile : tiles )

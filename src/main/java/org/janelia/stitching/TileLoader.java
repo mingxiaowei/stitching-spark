@@ -74,6 +74,21 @@ public class TileLoader
 			return ImagePlusImgs.from( imp );
 		}
 
+		final String pathPrefix = "/Volumes";
+		final N5Reader n5PF = dataProvider.createN5Reader( pathPrefix + n5Path );
+		System.out.println("n5Path: " + n5Path);
+		System.out.println("tileDatasetPath: " + tileDatasetPath);
+		System.out.println("tile.getFilePath(): " + tile.getFilePath());
+
+		if ( n5PF.datasetExists( tileDatasetPath ) )
+			return N5Utils.open( n5PF, tileDatasetPath );
+
+		if ( dataProvider.exists( pathPrefix + tile.getFilePath() ) )
+		{
+			final ImagePlus imp = dataProvider.loadImage( pathPrefix + tile.getFilePath() );
+			return ImagePlusImgs.from( imp );
+		}
+
 		throw new IOException( "Tile image does not exist: " + tile.getFilePath() );
 	}
 }
