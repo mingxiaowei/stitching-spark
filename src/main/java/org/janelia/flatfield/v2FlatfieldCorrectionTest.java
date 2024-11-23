@@ -28,15 +28,20 @@ import java.util.List;
 
 public class v2FlatfieldCorrectionTest 
 {
-    public static <
+    public static void main(String[] args) throws Exception
+    {
+        test();
+    }
+
+    private static <
     T extends NativeType< T > & RealType< T >,
     U extends NativeType< U > & RealType< U > > 
-    void main() throws Exception
+    void test() throws Exception
     {
         
         String[] argsList = getArgsList();
-        StitchingArguments args = new StitchingArguments(argsList);
-        String inputTileConfiguration = args.inputTileConfigurations().get(0);
+        StitchingArguments sargs = new StitchingArguments(argsList);
+        String inputTileConfiguration = sargs.inputTileConfigurations().get(0);
         DataProvider dataProvider = DataProviderFactory.create(DataProviderFactory.detectType(inputTileConfiguration));
         int dimensionality = 3;
         // String SPath_old = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching_beforeflatfield/c2-flatfield/S.tif";
@@ -46,7 +51,7 @@ public class v2FlatfieldCorrectionTest
 
         final TileInfo[] tiles = dataProvider.loadTiles( inputTileConfiguration );
         RandomAccessiblePairNullable< U, U >  flatfield = FlatfieldCorrection.loadCorrectionImages(
-            dataProvider, args.flatfieldFile(), dimensionality, SPath, TPath);
+            dataProvider, sargs.flatfieldFile(), dimensionality, SPath, TPath);
         
         if ( flatfield == null )
 			throw new NullPointerException( "flatfield images were not found" );
@@ -78,6 +83,8 @@ public class v2FlatfieldCorrectionTest
             configArgList.add("-i");
             configArgList.add(channelConfig);
         }
+
+        configArgList.add("--fuse");
 
         System.out.println(configArgList);
 
