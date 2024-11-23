@@ -47,8 +47,10 @@ public class v2FlatfieldCorrectionTest
         int dimensionality = 3;
         // String SPath_old = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching_beforeflatfield/c2-flatfield/S.tif";
         // String TPath_old = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching_beforeflatfield/c2-flatfield/T.tif";
-        String SPath = "/Volumes/data/sternsonlab/Mingxiao/S_test.tiff";
-        String TPath = "/Volumes/data/sternsonlab/Mingxiao/T_test.tiff";
+        // String SPath = "/Volumes/data/sternsonlab/Mingxiao/S_test.tiff";
+        // String TPath = "/Volumes/data/sternsonlab/Mingxiao/T_test.tiff";
+        String SPath = "/data/sternsonlab/Mingxiao/S_test.tiff";
+        String TPath = "/data/sternsonlab/Mingxiao/T_test.tiff";
 
         final TileInfo[] tiles = dataProvider.loadTiles( inputTileConfiguration );
         RandomAccessiblePairNullable< U, U >  flatfield = FlatfieldCorrection.loadCorrectionImages(
@@ -57,7 +59,8 @@ public class v2FlatfieldCorrectionTest
         if ( flatfield == null )
 			throw new NullPointerException( "flatfield images were not found" );
         
-        String outputDirectory = "/Users/mingxiaowei/Desktop/smslab/code/stitching-spark/test_results/test1";
+        // String outputDirectory = "/Users/mingxiaowei/Desktop/smslab/code/stitching-spark/test_results/test1";
+        String outputDirectory = "/data/sternsonlab/Mingxiao/test_results/test1";
 
         int processed = 0;
 		// for ( final TileInfo tile : tiles )
@@ -80,7 +83,8 @@ public class v2FlatfieldCorrectionTest
     }
 
     private static String[] getArgsList() {
-        String inputPath = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching/";
+        // String inputPath = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching/";
+        String inputPath = "/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching/";
         List<String> configArgList = new ArrayList<>();
 
         for (int channel = 0; channel < 4; channel++) {
