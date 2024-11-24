@@ -49,8 +49,8 @@ public class v2FlatfieldCorrectionTest
         // String TPath_old = "/Volumes/data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching_beforeflatfield/c2-flatfield/T.tif";
         // String SPath = "/Volumes/data/sternsonlab/Mingxiao/S_test.tiff";
         // String TPath = "/Volumes/data/sternsonlab/Mingxiao/T_test.tiff";
-        String SPath = "/data/sternsonlab/Mingxiao/S_test.tiff";
-        String TPath = "/data/sternsonlab/Mingxiao/T_test.tiff";
+        String SPath = "/data/sternsonlab/Mingxiao/S_s0.tif";
+        String TPath = "/data/sternsonlab/Mingxiao/T_s0.tif";
 
         final TileInfo[] tiles = dataProvider.loadTiles( inputTileConfiguration );
         RandomAccessiblePairNullable< U, U >  flatfield = FlatfieldCorrection.loadCorrectionImages(
@@ -60,7 +60,7 @@ public class v2FlatfieldCorrectionTest
 			throw new NullPointerException( "flatfield images were not found" );
         
         // String outputDirectory = "/Users/mingxiaowei/Desktop/smslab/code/stitching-spark/test_results/test1";
-        String outputDirectory = "/data/sternsonlab/Mingxiao/test_results/test1";
+        String outputDirectory = "/data/sternsonlab/Mingxiao/test_results/test2";
 
         int processed = 0;
 		// for ( final TileInfo tile : tiles )
