@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.util.Util;
@@ -164,7 +166,9 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 			final int dimensionality,
 			final String multichannelCorrectionPath ) throws IOException
 	{
+		final int channelNumber = extractChannelNumber( basePath );
 		return null; // place holder to avoid compilation error
+		// extract channel number from basePath
 		// if ( !dataProvider.exists( flatfieldPath ) || !dataProvider.exists( darkfieldPath ) )
 		// {
 		// 	System.out.println( "Provided flatfield/darkfield file does not exist; use default instead. " );
@@ -189,6 +193,19 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 		// final RandomAccessible< U > darkfieldImgExtended = ( darkfieldImg.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( darkfieldImg ) ) : darkfieldImg );
 
 		// return new RandomAccessiblePairNullable<>( flatfieldImgExtended, darkfieldImgExtended );
+	}
+
+	private static int extractChannelNumber( final String basePath )
+	{
+		final String regex = "\\bc(\\d)(\\b|_)";
+		final Pattern pattern = Pattern.compile( regex );
+		final Matcher matcher = pattern.matcher( basePath );
+
+		String lastDigit = null;
+		while ( matcher.find() )
+			lastDigit = matcher.group( 1 ); // Capture the digit
+
+		return lastDigit != null ? Integer.parseInt( lastDigit ) : -1;
 	}
 
 	private static < U extends NativeType< U > & RealType< U > > RandomAccessibleInterval< U > copyImage( final RandomAccessibleInterval< U > img )
