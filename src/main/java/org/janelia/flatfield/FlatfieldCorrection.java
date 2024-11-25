@@ -158,6 +158,39 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 		return new RandomAccessiblePairNullable<>( flatfieldImgExtended, darkfieldImgExtended );
 	}
 
+	public static < U extends NativeType< U > & RealType< U > > RandomAccessiblePairNullable< U, U > loadCorrectionImages(
+			final DataProvider dataProvider,
+			final String basePath,
+			final int dimensionality,
+			final String multichannelCorrectionPath ) throws IOException
+	{
+		return null; // place holder to avoid compilation error
+		// if ( !dataProvider.exists( flatfieldPath ) || !dataProvider.exists( darkfieldPath ) )
+		// {
+		// 	System.out.println( "Provided flatfield/darkfield file does not exist; use default instead. " );
+		// 	return loadCorrectionImages( dataProvider, basePath, dimensionality );
+		// }
+
+		// System.out.println( "Loading provided flatfield: " + flatfieldPath );
+		// System.out.println( "Loading provided darkfield: " + darkfieldPath );
+
+		// final ImagePlus flatfieldImp = dataProvider.loadImage( flatfieldPath );
+		// final ImagePlus darkfieldImp = dataProvider.loadImage( darkfieldPath );
+
+		// final RandomAccessibleInterval< U > flatfieldWrappedImg = ImagePlusImgs.from( flatfieldImp );
+		// final RandomAccessibleInterval< U > darkfieldWrappedImg = ImagePlusImgs.from( darkfieldImp );
+
+		// // NOTE: these images could be broadcasted by the caller, and this may cause problems with Cloud backends.
+		// // Copy the images to avoid this problem. See the following issues for more details: https://github.com/saalfeldlab/stitching-spark/issues/27
+		// final RandomAccessibleInterval< U > flatfieldImg = copyImage( flatfieldWrappedImg );
+		// final RandomAccessibleInterval< U > darkfieldImg = copyImage( darkfieldWrappedImg );
+
+		// final RandomAccessible< U > flatfieldImgExtended = ( flatfieldImg.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( flatfieldImg ) ) : flatfieldImg );
+		// final RandomAccessible< U > darkfieldImgExtended = ( darkfieldImg.numDimensions() < dimensionality ? Views.extendBorder( Views.stack( darkfieldImg ) ) : darkfieldImg );
+
+		// return new RandomAccessiblePairNullable<>( flatfieldImgExtended, darkfieldImgExtended );
+	}
+
 	private static < U extends NativeType< U > & RealType< U > > RandomAccessibleInterval< U > copyImage( final RandomAccessibleInterval< U > img )
 	{
 		final U type = Util.getTypeFromInterval( img );
