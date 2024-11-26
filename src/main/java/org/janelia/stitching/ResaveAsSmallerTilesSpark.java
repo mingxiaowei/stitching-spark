@@ -74,6 +74,10 @@ public class ResaveAsSmallerTilesSpark implements Serializable, AutoCloseable
 				usage = "Provided darkfield file")
 		private String darkfieldFile = null;
 
+		@Option(name = "--multichannel-correction-path", aliases = { "-mcp" }, required = false,
+				usage = "Path to a folder containing flatfield and darkfield files for each channel")
+		private String multichannelCorrectionPath = null;
+
 		public boolean parsedSuccessfully = false;
 
 		public ResaveAsSmallerTilesCmdArgs( final String[] args ) throws IllegalArgumentException
@@ -156,12 +160,20 @@ public class ResaveAsSmallerTilesSpark implements Serializable, AutoCloseable
 
 		final Broadcast< List< Interval > > broadcastedNewTilesIntervalsInSingleTile = sparkContext.broadcast( newTilesIntervalsInSingleTile );
 
-		final RandomAccessiblePairNullable< U, U > flatfield = FlatfieldCorrection.loadCorrectionImages( 
-			sourceDataProvider, 
-			inputTileConfiguration, 
-			tiles[ 0 ].numDimensions(),
-			args.flatfieldFile,
-			args.darkfieldFile );
+		RandomAccessiblePairNullable< U, U > flatfield = null; 
+		if ( args.multichannelCorrectionPath != null )
+			flatfield = FlatfieldCorrection.loadCorrectionImages( 
+				sourceDataProvider, 
+				inputTileConfiguration, 
+				tiles[ 0 ].numDimensions(),
+				args.multichannelCorrectionPath );
+		else
+			flatfield = FlatfieldCorrection.loadCorrectionImages( 
+				sourceDataProvider, 
+				inputTileConfiguration, 
+				tiles[ 0 ].numDimensions(),
+				args.flatfieldFile,
+				args.darkfieldFile );
 		final Broadcast< RandomAccessiblePairNullable< U, U > > broadcastedFlatfield = sparkContext.broadcast( flatfield );
 
 		final List< TileInfo > newTiles = sparkContext.parallelize( Arrays.asList( tiles ), tiles.length ).flatMap(

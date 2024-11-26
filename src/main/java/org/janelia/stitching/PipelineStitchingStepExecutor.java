@@ -394,13 +394,21 @@ public class PipelineStitchingStepExecutor extends PipelineStepExecutor
 		System.out.println( "Broadcasting flatfield correction images" );
 		final List< RandomAccessiblePairNullable< U, U > > flatfieldCorrectionForChannels = new ArrayList<>();
 		for ( final String channelPath : job.getArgs().correctionImagesPaths() )
-			flatfieldCorrectionForChannels.add( 
-				FlatfieldCorrection.loadCorrectionImages( 
-					dataProvider, 
-					channelPath, 
-					job.getDimensionality(),
-					job.getArgs().flatfieldFile(),
-					job.getArgs().darkfieldFile() ) );
+			if (job.getArgs().multichannelCorrectionPath() != null)
+				flatfieldCorrectionForChannels.add( 
+					FlatfieldCorrection.loadCorrectionImages( 
+						dataProvider, 
+						channelPath, 
+						job.getDimensionality(),
+						job.getArgs().multichannelCorrectionPath() ) );
+			else
+				flatfieldCorrectionForChannels.add( 
+					FlatfieldCorrection.loadCorrectionImages( 
+						dataProvider, 
+						channelPath, 
+						job.getDimensionality(),
+						job.getArgs().flatfieldFile(),
+						job.getArgs().darkfieldFile() ) );
 		final Broadcast< List< RandomAccessiblePairNullable< U, U > > > broadcastedFlatfieldCorrectionForChannels = sparkContext.broadcast( flatfieldCorrectionForChannels );
 
 		final List< Map< Integer, TileInfo > > tileChannelMappingByIndex = new ArrayList<>();

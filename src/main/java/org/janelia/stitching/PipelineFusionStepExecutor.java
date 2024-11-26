@@ -146,13 +146,20 @@ public class PipelineFusionStepExecutor< T extends NativeType< T > & RealType< T
 
 			// prepare flatfield correction images
 			// use it as a folder with the input file's name
-			final RandomAccessiblePairNullable< U, U >  flatfieldCorrection = FlatfieldCorrection.loadCorrectionImages(
+			RandomAccessiblePairNullable< U, U >  flatfieldCorrection = null;
+			if ( job.getArgs().multichannelCorrectionPath() != null )
+				flatfieldCorrection = FlatfieldCorrection.loadCorrectionImages(
 					dataProvider,
 					channelCorrectionPath,
 					job.getDimensionality(),
-					job.getArgs().flatfieldFile(),
-					job.getArgs().darkfieldFile()
-				);
+					job.getArgs().multichannelCorrectionPath() );
+			else
+				flatfieldCorrection = FlatfieldCorrection.loadCorrectionImages(
+						dataProvider,
+						channelCorrectionPath,
+						job.getDimensionality(),
+						job.getArgs().flatfieldFile(),
+						job.getArgs().darkfieldFile() );
 			if ( flatfieldCorrection != null )
 				System.out.println( "[Flatfield correction] Broadcasting flatfield correction images" );
 			broadcastedFlatfieldCorrection = sparkContext.broadcast( flatfieldCorrection );

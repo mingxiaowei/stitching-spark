@@ -110,6 +110,10 @@ public class StitchingArguments implements Serializable {
 			usage = "Provided darkfield file")
 	private String darkfieldFile = null;
 
+	@Option(name = "--multichannel-correction-path", aliases = { "-mcp" }, required = false,
+			usage = "Path to a folder containing flatfield and darkfield files for each channel")
+	private String multichannelCorrectionPath = null;
+
 	/**
 	 * Toggle pipeline stages. By default all stages are executed.
 	 */
@@ -251,6 +255,7 @@ public class StitchingArguments implements Serializable {
 
 	public String flatfieldFile() { return flatfieldFile; }
 	public String darkfieldFile() { return darkfieldFile; }
+	public String multichannelCorrectionPath() { return multichannelCorrectionPath; }
 
 	private long[] parseArray( final String str )
 	{
