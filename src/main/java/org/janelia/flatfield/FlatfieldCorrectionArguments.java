@@ -65,6 +65,10 @@ public class FlatfieldCorrectionArguments
 			usage = "Provided darkfield file")
 	private String darkfieldFile = null;
 
+	@Option(name = "--multichannel-correction-path", aliases = { "-mcp" }, required = false,
+			usage = "Path to a folder containing flatfield and darkfield files for each channel")
+	private String multichannelCorrectionPath = null;
+
 	private static final double defaultHistMinQuantile = 0.05;
 	private static final double defaultHistMaxQuantile = 0.95;
 
