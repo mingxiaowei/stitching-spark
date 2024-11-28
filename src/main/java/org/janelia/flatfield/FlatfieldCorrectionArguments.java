@@ -124,6 +124,7 @@ public class FlatfieldCorrectionArguments
 
 	public String flatfieldFile() { return flatfieldFile; }
 	public String darkfieldFile() { return darkfieldFile; }
+	public String multichannelCorrectionPath() { return multichannelCorrectionPath; }
 
 	public HistogramSettings getHistogramSettings()
 	{
