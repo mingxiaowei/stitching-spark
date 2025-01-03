@@ -5,18 +5,10 @@ import json
 import os
 import zarr
 from basicpy import BaSiC
-from scipy.ndimage import zoom
-from matplotlib import pyplot as plt
-from cv2 import resize
 
 def process_tiles(input_channel_json_path):
     # json_path: path to json config for all tiles for each channel
-    # estimate flatfield, darkfield, and baseline for input 
-    # save_path: parent folder for ff, df, bn; specific to each tile
-    # TODO: need to collect metadata for each tile
-    # TODO: check how the files for each tile are stored 
-    # dataprovider?
-    # all tiles are stored in an array Tileinfo[]
+    # estimate flatfield, darkfield, and baseline for input  
     with open(input_channel_json_path, 'r') as file:
         input_channel_json = json.load(file)
     stitching_dir = os.path.dirname(input_channel_json_path)
@@ -24,6 +16,8 @@ def process_tiles(input_channel_json_path):
     channel_name = os.path.basename(os.path.dirname(input_channel_json[0]["file"]))
     channel_dir = os.path.join(flatfield_dir, channel_name)
     os.makedirs(channel_dir, exist_ok=True)
+
+    all_baselines = []
 
     for tile_info_dict in input_channel_json:
 
@@ -44,7 +38,12 @@ def process_tiles(input_channel_json_path):
         np.save("flatfield.npy", basic_model.flatfield)
         np.save("darkfield.npy", basic_model.darkfield)
         np.save("baseline.npy", basic_model.baseline)
+        all_baselines.append(basic_model.baseline.copy())
 
         del tile_input_arr, basic_model
+    
+    avg_baseline = np.mean(all_baselines, axis=0)
+    os.chdir(channel_dir)
+    np.save("avg_baseline.npy", avg_baseline)
     # save flatfield, darkfield, and baseline as it is
     
