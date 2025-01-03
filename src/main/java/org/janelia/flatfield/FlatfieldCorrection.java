@@ -167,12 +167,12 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 			final String multichannelCorrectionPath ) throws IOException
 	{
 		final int channelNumber = extractChannelNumber( basePath );
-		final String flatfieldFile = String.format("c%d_S.tif", channelNumber);
-		final String darkfieldFile = String.format("c%d_T.tif", channelNumber);
+		final String flatfieldFile = String.format( "c%d_S.tif", channelNumber );
+		final String darkfieldFile = String.format( "c%d_T.tif", channelNumber );
 		final String flatfieldPath = PathResolver.get( multichannelCorrectionPath, flatfieldFile );
 		final String darkfieldPath = PathResolver.get( multichannelCorrectionPath, darkfieldFile );
-		System.out.println("Using channel specific flatfield: " + flatfieldPath);
-		System.out.println("Using channel specific darkfield: " + darkfieldPath);
+		System.out.println( "Using channel specific flatfield: " + flatfieldPath );
+		System.out.println( "Using channel specific darkfield: " + darkfieldPath );
 		return loadCorrectionImages( dataProvider, basePath, dimensionality, flatfieldPath, darkfieldPath );
 	}
 
@@ -270,6 +270,12 @@ public class FlatfieldCorrection implements Serializable, AutoCloseable
 		final String inputChannelPath = args.inputChannelsPaths().get( channel );
 		final DataProvider dataProvider = DataProviderFactory.create( DataProviderFactory.detectType( inputChannelPath ) );
 		final TileInfo[] tiles = dataProvider.loadTiles( inputChannelPath );
+		// TODO: for each tile, use Python script to calculate flatfield, darkfield, and baseline; save all 
+		// TODO: after step one, calculate average baseline and save
+		// TODO: for each file, calculate and save the final S/T from the previous two steps 
+		// all of these can be done by one integrated Python script
+		//  tileinfo.getFilePath()
+		// just use json for config and call Python with that lmao
 
 		final String flatfieldFolderPath = getFlatfieldFolderForBasePath( inputChannelPath );
 		final String solutionPath = PathResolver.get( flatfieldFolderPath, args.cropMinMaxIntervalStr() == null ? "fullsize" : args.cropMinMaxIntervalStr(), "solution" );
