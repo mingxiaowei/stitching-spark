@@ -80,17 +80,24 @@ def process_tiles(input_channel_json_path, verbose=True):
     #   		      = image * (1 / flatfield) + (baseline_avg - darkfield / flatfield - baseline) 
     # S = 1 / flatfield
     # T = baseline_avg - darkfield / flatfield - baseline
+    x_shape, y_shape, z_shape = input_channel_json[0]["size"]
+    avg_baseline_3d = np.stack([avg_baseline] * x_shape * y_shape, axis=0).reshape(z_shape, x_shape, y_shape)
     for tile_dir in all_tile_dirs:
         os.chdir(tile_dir)
         baseline = np.load("baseline.npy")
         darkfield = np.load("darkfield.npy")
         flatfield = np.load("flatfield.npy")
-        S = 1 / flatfield
-        T = avg_baseline - darkfield / flatfield - baseline
+        S = 1 / flatfield # 2D
+        darkfield_3d = np.stack([darkfield] * z_shape, axis=0)
+        flatfield_3d = np.stack([flatfield] * z_shape, axis=0)
+        baseline_3d = np.stack([baseline] * x_shape * y_shape, axis=0).reshape(z_shape, x_shape, y_shape)
+        T = avg_baseline_3d - darkfield_3d / flatfield_3d - baseline_3d # 3D
+        # T = avg_baseline - darkfield / flatfield - baseline
         Image.fromarray(S).save("S.tif")
         Image.fromarray(T).save("T.tif")
         if verbose:
             print(f"S/T converted and saved for {tile_dir}")
+        del darkfield, flatfield, darkfield_3d, flatfield_3d, baseline_3d, avg_baseline_3d, S, T
 
 if __name__ == "__main__":
     args = parser.parse_args()
