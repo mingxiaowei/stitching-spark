@@ -6,6 +6,7 @@ import argparse
 import time
 import numpy as np
 from basicpy import BaSiC
+from PIL import Image
 
 parser = argparse.ArgumentParser(description="Process tiles for flatfield, darkfield, and baseline estimation")
 parser.add_argument("-p", "--path", required=True, type=str, help="Path to json config for all tiles for a channel")
@@ -25,6 +26,7 @@ def process_tiles(input_channel_json_path, verbose=True):
         print(f'Channnel folder created: {channel_dir}')
 
     all_baselines = []
+    all_tile_dirs = []
     base_n5_path = input_channel_json[0]["file"].split('.n5')[0] + '.n5'
     if verbose:
         print(f'base_n5_path: {base_n5_path}')
@@ -41,6 +43,7 @@ def process_tiles(input_channel_json_path, verbose=True):
         tile_num = int(tile_info_dict.get("index", -1))
         tile_dir = os.path.join(channel_dir, f"tile{tile_num}")
         os.makedirs(tile_dir, exist_ok=True)
+        all_tile_dirs.append(tile_dir)
         if verbose:
             print(f'Tile folder created: {tile_dir}')
             print(f'tile_input_path: {tile_input_path}')
@@ -71,7 +74,23 @@ def process_tiles(input_channel_json_path, verbose=True):
     avg_baseline = np.mean(all_baselines, axis=0)
     os.chdir(channel_dir)
     np.save("avg_baseline.npy", avg_baseline)
-    # save flatfield, darkfield, and baseline as it is
+    
+    # for each tile, calculate and save the final S/T file:
+    # image_corrected = (image - darkfield) / flatfield  - baseline + baseline_avg
+    #   		      = image * (1 / flatfield) + (baseline_avg - darkfield / flatfield - baseline) 
+    # S = 1 / flatfield
+    # T = baseline_avg - darkfield / flatfield - baseline
+    for tile_dir in all_tile_dirs:
+        os.chdir(tile_dir)
+        baseline = np.load("baseline.npy")
+        darkfield = np.load("darkfield.npy")
+        flatfield = np.load("flatfield.npy")
+        S = 1 / flatfield
+        T = avg_baseline - darkfield / flatfield - baseline
+        Image.fromarray(S).save("S.tif")
+        Image.fromarray(T).save("T.tif")
+        if verbose:
+            print(f"S/T converted and saved for {tile_dir}")
 
 if __name__ == "__main__":
     args = parser.parse_args()
