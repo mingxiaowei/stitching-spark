@@ -6,7 +6,7 @@ public class PythonCaller {
     public static void main(String[] args) {
         try { 
             // Execute the Python script 
-            Process process = Runtime.getRuntime().exec("python hello.py"); 
+            Process process = Runtime.getRuntime().exec("python process_tile.py -p /data/sternsonlab/Zhenggang/2acq/outputs/M28C_LHA_S1/stitching/c0-n5-tile0.json"); 
  
             // Read the output from the command 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream())); 
