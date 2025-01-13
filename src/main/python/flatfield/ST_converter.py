@@ -1,9 +1,8 @@
 import os
 import argparse
-import time
 import json
 import numpy as np
-from PIL import Image
+from tifffile import imwrite 
 from utils import *
 
 parser = argparse.ArgumentParser(description="Convert existing flatfield, darkfield, and baseline to S/T terms for the stitching pipeline")
@@ -30,12 +29,16 @@ def convert_to_ST(input_channel_json_path, verbose=True):
 
     tiles_cnt = len(input_channel_json)
     x, y, z = input_channel_json[0]['size']
+    if verbose:
+        print(f"Tile dimensions: x = {x}, y = {y}, z = {z}")
+        
     per_tile_base_path = get_per_tile_base_path(input_channel_json_path)
     avg_baseline = np.load(os.path.join(per_tile_base_path, 'avg_baseline.npy'))
     avg_baseline_3d = stack_1d_to_3d(avg_baseline, x, y)
 
     for tile_index in range(tiles_cnt):
-
+        if verbose:
+            print(f"Processing tile {tile_index} of {tiles_cnt}")
         tile_dir = get_per_tile_folder_path(input_channel_json_path, tile_index)
         os.chdir(tile_dir)
 
@@ -44,9 +47,9 @@ def convert_to_ST(input_channel_json_path, verbose=True):
         df_over_ff_3d = stack_2d_to_3d(tile_fields['darkfield'] / tile_fields['flatfield'], z)
         S_1d = 1 / tile_fields['flatfield']
         T_3d = baseline_3d - avg_baseline_3d - df_over_ff_3d
-        
-        Image.fromarray(S_1d).save("S.tif")
-        Image.fromarray(T_3d).save("T.tif")
+
+        imwrite("S.tif", S_1d)
+        imwrite("T.tif", T_3d)
         if verbose:
             print(f"S/T converted and saved for {tile_dir}")
         del tile_fields, baseline_3d, df_over_ff_3d, S_1d, T_3d
