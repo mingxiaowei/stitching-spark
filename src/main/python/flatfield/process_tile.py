@@ -7,6 +7,7 @@ import time
 import numpy as np
 from basicpy import BaSiC
 from PIL import Image
+from .utils import *
 
 parser = argparse.ArgumentParser(description="Process tiles for flatfield, darkfield, and baseline estimation")
 parser.add_argument("-p", "--path", required=True, type=str, help="Path to json config for all tiles for a channel")
@@ -17,10 +18,7 @@ def process_tiles(input_channel_json_path, verbose=True):
     # estimate flatfield, darkfield, and baseline for input  
     with open(input_channel_json_path, 'r') as file:
         input_channel_json = json.load(file)
-    stitching_dir = os.path.dirname(input_channel_json_path)
-    flatfield_dir = os.path.join(stitching_dir, "per_tile_flatfields")
-    channel_name = os.path.basename(os.path.dirname(input_channel_json[0]["file"]))
-    channel_dir = os.path.join(flatfield_dir, channel_name)
+    channel_dir = get_per_tile_base_path(input_channel_json_path, input_channel_json)
     os.makedirs(channel_dir, exist_ok=True)
     if verbose:
         print(f'Channnel folder created: {channel_dir}')
@@ -75,29 +73,6 @@ def process_tiles(input_channel_json_path, verbose=True):
     os.chdir(channel_dir)
     np.save("avg_baseline.npy", avg_baseline)
     
-    # for each tile, calculate and save the final S/T file:
-    # image_corrected = (image - darkfield) / flatfield  - baseline + baseline_avg
-    #   		      = image * (1 / flatfield) + (baseline_avg - darkfield / flatfield - baseline) 
-    # S = 1 / flatfield
-    # T = baseline_avg - darkfield / flatfield - baseline
-    x_shape, y_shape, z_shape = input_channel_json[0]["size"]
-    avg_baseline_3d = np.stack([avg_baseline] * x_shape * y_shape, axis=0).reshape(z_shape, x_shape, y_shape)
-    for tile_dir in all_tile_dirs:
-        os.chdir(tile_dir)
-        baseline = np.load("baseline.npy")
-        darkfield = np.load("darkfield.npy")
-        flatfield = np.load("flatfield.npy")
-        S = 1 / flatfield # 2D
-        darkfield_3d = np.stack([darkfield] * z_shape, axis=0)
-        flatfield_3d = np.stack([flatfield] * z_shape, axis=0)
-        baseline_3d = np.stack([baseline] * x_shape * y_shape, axis=0).reshape(z_shape, x_shape, y_shape)
-        T = avg_baseline_3d - darkfield_3d / flatfield_3d - baseline_3d # 3D
-        # T = avg_baseline - darkfield / flatfield - baseline
-        Image.fromarray(S).save("S.tif")
-        Image.fromarray(T).save("T.tif")
-        if verbose:
-            print(f"S/T converted and saved for {tile_dir}")
-        del darkfield, flatfield, darkfield_3d, flatfield_3d, baseline_3d, avg_baseline_3d, S, T
 
 if __name__ == "__main__":
     args = parser.parse_args()
